@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-windows-x86_64.yml
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List artifacts
+        run: find artifacts -type f
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*.zip
+          generate_release_notes: true
+          body: |
+            ## Windows x86_64 libmpv SDK
+
+            Two license profiles are provided:
+
+            ### GPL (`*-gpl.zip`)
+            - Full feature set (CD/DVD, rubberband, VapourSynth, MSYS2 GPL ffmpeg)
+            - Use when your project is compatible with **GPLv2+**
+
+            ### LGPL (`*-lgpl.zip`)
+            - LGPL-compatible build (`-Dgpl=false`, ffmpeg built from source)
+            - Use when embedding in **proprietary software** under LGPL compliance
+
+            See each archive's `README.txt` and `BUILD_INFO.json` for details.

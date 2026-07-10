@@ -1,0 +1,59 @@
+{
+  "license": "lgpl",
+  "meson": {
+    "gpl": false,
+    "cplayer": false,
+    "libmpv": true,
+    "default_library": "shared",
+    "tests": false
+  },
+  "features": {
+    "amf": "enabled",
+    "cdda": "disabled",
+    "d3d-hwaccel": "enabled",
+    "d3d11": "enabled",
+    "dvdnav": "disabled",
+    "egl-angle-lib": "enabled",
+    "egl-angle-win32": "enabled",
+    "javascript": "enabled",
+    "jpeg": "enabled",
+    "lcms2": "enabled",
+    "libarchive": "enabled",
+    "libbluray": "enabled",
+    "lua": "enabled",
+    "rubberband": "disabled",
+    "shaderc": "enabled",
+    "spirv-cross": "enabled",
+    "uchardet": "enabled",
+    "vapoursynth": "disabled",
+    "win32-smtc": "enabled"
+  },
+  "pacboy_extra": ["yasm", "nasm"],
+  "ffmpeg": {
+    "source_build": true,
+    "prefix_env": "FFMPEG_LGPL_PREFIX",
+    "configure_flags": [
+      "--disable-gpl",
+      "--disable-nonfree",
+      "--disable-version3",
+      "--enable-shared",
+      "--disable-static",
+      "--enable-libass"
+    ],
+    "disable_libs": [
+      "libx264",
+      "libx265",
+      "libxvid",
+      "libaom",
+      "libdavs2",
+      "libmp3lame",
+      "libvpx",
+      "libopus",
+      "libvorbis"
+    ]
+  },
+  "ffmpeg_source": "built-from-source-lgpl",
+  "required_features": [],
+  "disabled_gpl_features": ["cdda", "dvdnav", "rubberband", "vapoursynth"],
+  "forbidden_strings": ["libx264", "libx265", "libxvid", "libaom", "libdav1d"]
+}

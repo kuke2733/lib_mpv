@@ -1,0 +1,109 @@
+name: Build Windows x86_64
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'configs/**'
+      - 'scripts/**'
+      - '.github/workflows/build-windows-x86_64.yml'
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: build-windows-${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  libmpv:
+    name: libmpv (${{ matrix.license }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        license: [gpl, lgpl]
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    env:
+      PROFILE: ${{ matrix.license }}
+      FFMPEG_LGPL_PREFIX: ${{ github.workspace }}/.cache/ffmpeg-lgpl-prefix
+
+    steps:
+      - name: Disable autocrlf
+        shell: pwsh
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+
+      - uses: actions/checkout@v4
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: CLANG64
+          update: true
+          install: git
+
+      - name: Install build dependencies
+        run: ./scripts/install-msys2-deps.sh
+
+      - name: Restore source cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/sources
+          key: sources-${{ hashFiles('configs/sources/*.json') }}
+          restore-keys: sources-
+
+      - name: Restore LGPL ffmpeg prefix
+        if: matrix.license == 'lgpl'
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/ffmpeg-lgpl-prefix
+          key: ffmpeg-lgpl-${{ hashFiles('configs/sources/ffmpeg.json', 'configs/profiles/lgpl.json') }}
+          restore-keys: ffmpeg-lgpl-
+
+      - name: Build libmpv
+        run: ./scripts/build-libmpv.sh
+
+      - name: Collect runtime dependencies
+        run: ./scripts/collect-deps.sh
+
+      - name: Verify license profile
+        run: ./scripts/verify-license.sh
+
+      - name: Package SDK
+        run: ./scripts/package-windows.sh
+
+      - name: Validate package layout
+        run: ./scripts/validate-package.sh
+
+      - name: Set artifact version
+        id: meta
+        run: |
+          mpv_ver="$(grep -E '#define VERSION ' .cache/sources/mpv/common/version.h | sed -E 's/.*"([^"]+)".*/\1/')"
+          echo "mpv_version=${mpv_ver}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: libmpv-${{ steps.meta.outputs.mpv_version }}-windows-x86_64-${{ matrix.license }}
+          path: dist/${{ matrix.license }}/*.zip
+          if-no-files-found: error
+
+      - name: Save source cache
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/sources
+          key: sources-${{ hashFiles('configs/sources/*.json') }}
+
+      - name: Cache LGPL ffmpeg prefix
+        if: matrix.license == 'lgpl'
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/ffmpeg-lgpl-prefix
+          key: ffmpeg-lgpl-${{ hashFiles('configs/sources/ffmpeg.json', 'configs/profiles/lgpl.json') }}

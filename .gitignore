@@ -1,0 +1,14 @@
+# Build outputs
+dist/
+.cache/
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+Desktop.ini
+
+# Archives (local testing)
+*.zip

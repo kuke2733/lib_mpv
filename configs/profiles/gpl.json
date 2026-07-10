@@ -1,0 +1,46 @@
+{
+  "license": "gpl",
+  "meson": {
+    "gpl": true,
+    "cplayer": false,
+    "libmpv": true,
+    "default_library": "shared",
+    "tests": false
+  },
+  "features": {
+    "amf": "enabled",
+    "cdda": "enabled",
+    "d3d-hwaccel": "enabled",
+    "d3d11": "enabled",
+    "dvdnav": "enabled",
+    "egl-angle-lib": "enabled",
+    "egl-angle-win32": "enabled",
+    "javascript": "enabled",
+    "jpeg": "enabled",
+    "lcms2": "enabled",
+    "libarchive": "enabled",
+    "libbluray": "enabled",
+    "lua": "enabled",
+    "rubberband": "enabled",
+    "shaderc": "enabled",
+    "spirv-cross": "enabled",
+    "uchardet": "enabled",
+    "vapoursynth": "enabled",
+    "win32-smtc": "enabled"
+  },
+  "pacboy_extra": [
+    "ffmpeg",
+    "libcdio-paranoia",
+    "libdvdnav",
+    "rubberband",
+    "vapoursynth",
+    "angleproject",
+    "shaderc",
+    "spirv-cross",
+    "uchardet",
+    "amf-headers"
+  ],
+  "ffmpeg_source": "msys2-package",
+  "required_features": ["cdda", "dvdnav"],
+  "forbidden_strings": []
+}

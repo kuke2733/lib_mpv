@@ -1,0 +1,8 @@
+{
+  "name": "mpv",
+  "method": "git",
+  "repository": "https://github.com/mpv-player/mpv.git",
+  "ref": "v0.41.0",
+  "commit": "41f6a645068483470267271e1d09966ca3b9f413",
+  "description": "libmpv upstream; pin ref + commit for reproducible builds"
+}
