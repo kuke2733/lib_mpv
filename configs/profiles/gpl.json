@@ -34,10 +34,6 @@
     "libdvdnav",
     "rubberband",
     "vapoursynth",
-    "angleproject",
-    "shaderc",
-    "spirv-cross",
-    "uchardet",
     "amf-headers"
   ],
   "ffmpeg_source": "msys2-package",

@@ -28,7 +28,7 @@
     "vapoursynth": "disabled",
     "win32-smtc": "enabled"
   },
-  "pacboy_extra": ["yasm", "nasm"],
+  "pacboy_extra": ["nasm"],
   "ffmpeg": {
     "source_build": true,
     "prefix_env": "FFMPEG_LGPL_PREFIX",

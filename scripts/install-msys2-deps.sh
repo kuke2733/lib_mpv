@@ -5,6 +5,21 @@ set -euo pipefail
 source "$(dirname "$0")/common.sh"
 load_config
 
+mingw_pkg_prefix() {
+    case "${MSYSTEM:-CLANG64}" in
+        CLANG64) echo "mingw-w64-clang-x86_64" ;;
+        MINGW64) echo "mingw-w64-x86_64" ;;
+        UCRT64) echo "mingw-w64-ucrt-x86_64" ;;
+        CLANGARM64) echo "mingw-w64-clang-aarch64" ;;
+        *) echo "mingw-w64-clang-x86_64" ;;
+    esac
+}
+
+sync_pacman() {
+    echo "Syncing pacman databases ..."
+    pacman -Sy --noconfirm
+}
+
 ensure_pacboy() {
     if command -v pacboy >/dev/null 2>&1; then
         return 0
@@ -41,23 +56,51 @@ COMMON_PKGS=(
 )
 
 install_msys_tools() {
-    # zip/7z are MSYS packages, not available as mingw-w64-clang pacboy targets.
     pacman -S --needed --noconfirm zip p7zip
+}
+
+install_one_pkg() {
+    local pkg="$1"
+    local mingw_prefix full_name
+    mingw_prefix="$(mingw_pkg_prefix)"
+    full_name="${mingw_prefix}-${pkg}"
+
+    echo "Installing ${pkg} ..."
+
+    if pacboy -S --noconfirm "${pkg}:p"; then
+        return 0
+    fi
+
+    echo "pacboy failed for ${pkg}; syncing and retrying ..."
+    sync_pacman
+
+    if pacboy -S --noconfirm "${pkg}:p"; then
+        return 0
+    fi
+
+    echo "Trying direct pacman install: ${full_name}"
+    if pacman -S --needed --noconfirm "${full_name}"; then
+        return 0
+    fi
+
+    echo "Trying MSYS package: ${pkg}"
+    pacman -S --needed --noconfirm "$pkg"
 }
 
 install_pacboy() {
     local pkg
     for pkg in "$@"; do
-        echo "Installing ${pkg}..."
-        pacboy -S --noconfirm "${pkg}:p"
+        install_one_pkg "$pkg"
     done
 }
 
 ensure_pacboy
-install_pacboy "${COMMON_PKGS[@]}"
+sync_pacman
 install_msys_tools
+install_pacboy "${COMMON_PKGS[@]}"
 
 mapfile -t EXTRA < <(jq -r '.pacboy_extra[]' "$CONFIG")
+sync_pacman
 install_pacboy "${EXTRA[@]}"
 
 echo "MSYS2 dependencies installed for profile: ${PROFILE}"
