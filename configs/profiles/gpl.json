@@ -8,7 +8,6 @@
     "tests": false
   },
   "features": {
-    "amf": "enabled",
     "cdda": "enabled",
     "d3d-hwaccel": "enabled",
     "d3d11": "enabled",
@@ -33,8 +32,7 @@
     "libcdio-paranoia",
     "libdvdnav",
     "rubberband",
-    "vapoursynth",
-    "amf-headers"
+    "vapoursynth"
   ],
   "ffmpeg_source": "msys2-package",
   "required_features": ["cdda", "dvdnav"],

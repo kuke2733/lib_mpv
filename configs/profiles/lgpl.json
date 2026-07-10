@@ -8,7 +8,6 @@
     "tests": false
   },
   "features": {
-    "amf": "enabled",
     "cdda": "disabled",
     "d3d-hwaccel": "enabled",
     "d3d11": "enabled",

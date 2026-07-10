@@ -36,11 +36,19 @@ rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
+export CC="${CC:-clang}"
+export CXX="${CXX:-clang++}"
+export AR="${AR:-llvm-ar}"
+export NM="${NM:-llvm-nm}"
+export RANLIB="${RANLIB:-llvm-ranlib}"
+
 echo "::group::Configure ffmpeg (LGPL)"
 "${SRC_DIR}/configure" \
     --prefix="$FFMPEG_LGPL_PREFIX" \
     --arch=x86_64 \
     --target-os=mingw32 \
+    --cc=clang \
+    --cxx=clang++ \
     --pkg-config=pkg-config \
     --extra-cflags="-O2" \
     "${CONFIGURE_FLAGS[@]}"

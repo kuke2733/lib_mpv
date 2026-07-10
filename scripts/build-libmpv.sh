@@ -27,7 +27,6 @@ mapfile -t MESON_FEATURES < <(meson_feature_args "$CONFIG")
 MESON_ARGS=(
     "${MESON_BOOL[@]}"
     "${MESON_FEATURES[@]}"
-    -Dsubrandr=disabled
     -Dmanpage-build=disabled
     -Dhtml-build=disabled
     -Dpdf-build=disabled
