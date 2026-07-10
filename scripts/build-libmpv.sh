@@ -44,7 +44,7 @@ meson setup "$BUILD_DIR" "${MESON_ARGS[@]}"
 echo "::endgroup::"
 
 echo "::group::Compile libmpv"
-meson compile -C "$BUILD_DIR" libmpv-2.dll
+meson compile -C "$BUILD_DIR" mpv
 echo "::endgroup::"
 
 LIBMPV_DLL="$(find "$BUILD_DIR" -name 'libmpv-2.dll' -type f | head -n 1)"
