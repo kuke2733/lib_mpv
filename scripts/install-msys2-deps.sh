@@ -37,9 +37,13 @@ COMMON_PKGS=(
     shaderc
     spirv-cross
     uchardet
-    zip
     mujs
 )
+
+install_msys_tools() {
+    # zip/7z are MSYS packages, not available as mingw-w64-clang pacboy targets.
+    pacman -S --needed --noconfirm zip p7zip
+}
 
 install_pacboy() {
     local pkg
@@ -51,6 +55,7 @@ install_pacboy() {
 
 ensure_pacboy
 install_pacboy "${COMMON_PKGS[@]}"
+install_msys_tools
 
 mapfile -t EXTRA < <(jq -r '.pacboy_extra[]' "$CONFIG")
 install_pacboy "${EXTRA[@]}"
