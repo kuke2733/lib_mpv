@@ -27,8 +27,10 @@ fi
 
 # Required features for GPL
 while IFS= read -r feat; do
+    feat="$(strip_cr "$feat")"
     [[ -z "$feat" ]] && continue
     val="$(jq -r --arg f "$feat" '.features[$f] // empty' "$CONFIG")"
+    val="$(strip_cr "$val")"
     if [[ "$val" != "enabled" ]]; then
         fail "required feature not enabled: $feat (got: ${val:-missing})"
     fi
@@ -37,8 +39,10 @@ done < <(jq -r '.required_features[]? // empty' "$CONFIG")
 # Disabled GPL features must stay disabled for LGPL
 if [[ "$PROFILE" == "lgpl" ]]; then
     while IFS= read -r feat; do
+        feat="$(strip_cr "$feat")"
         [[ -z "$feat" ]] && continue
         val="$(jq -r --arg f "$feat" '.features[$f] // empty' "$CONFIG")"
+        val="$(strip_cr "$val")"
         if [[ "$val" != "disabled" ]]; then
             fail "GPL feature should be disabled for LGPL: $feat"
         fi
@@ -48,6 +52,7 @@ fi
 # Forbidden strings in bundled DLLs (LGPL must not link GPL codecs)
 if [[ -d "${STAGE}/bin" ]]; then
     while IFS= read -r needle; do
+        needle="$(strip_cr "$needle")"
         [[ -z "$needle" ]] && continue
         if find "${STAGE}/bin" -maxdepth 1 -name '*.dll' -print0 | xargs -0 strings 2>/dev/null | grep -qi "$needle"; then
             if [[ "$PROFILE" == "lgpl" ]]; then
