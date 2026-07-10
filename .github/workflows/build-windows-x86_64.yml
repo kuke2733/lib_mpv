@@ -89,7 +89,7 @@ jobs:
       - name: Set artifact version
         id: meta
         run: |
-          mpv_ver="$(grep -E '#define VERSION ' .cache/sources/mpv/common/version.h | sed -E 's/.*"([^"]+)".*/\1/')"
+          mpv_ver="$(jq -r '.ref' configs/sources/mpv.json | sed 's/^v//')"
           echo "mpv_version=${mpv_ver}" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifact
