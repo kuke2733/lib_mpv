@@ -32,6 +32,7 @@ jobs:
     env:
       PROFILE: ${{ matrix.license }}
       FFMPEG_LGPL_PREFIX: ${{ github.workspace }}/.cache/ffmpeg-lgpl-prefix
+      BUILD_LOG_DIR: ${{ github.workspace }}/.cache/logs
 
     steps:
       - name: Disable autocrlf
@@ -47,10 +48,13 @@ jobs:
         with:
           msystem: CLANG64
           update: true
-          install: git
+          install: git pactoys
+
+      - name: Prepare log directory
+        run: mkdir -p "$BUILD_LOG_DIR"
 
       - name: Install build dependencies
-        run: ./scripts/install-msys2-deps.sh
+        run: ./scripts/run-logged.sh "${BUILD_LOG_DIR}/01-install-deps.log" ./scripts/install-msys2-deps.sh
 
       - name: Restore source cache
         uses: actions/cache/restore@v4
@@ -68,19 +72,19 @@ jobs:
           restore-keys: ffmpeg-lgpl-
 
       - name: Build libmpv
-        run: ./scripts/build-libmpv.sh
+        run: ./scripts/run-logged.sh "${BUILD_LOG_DIR}/02-build-libmpv.log" ./scripts/build-libmpv.sh
 
       - name: Collect runtime dependencies
-        run: ./scripts/collect-deps.sh
+        run: ./scripts/run-logged.sh "${BUILD_LOG_DIR}/03-collect-deps.log" ./scripts/collect-deps.sh
 
       - name: Verify license profile
-        run: ./scripts/verify-license.sh
+        run: ./scripts/run-logged.sh "${BUILD_LOG_DIR}/04-verify-license.log" ./scripts/verify-license.sh
 
       - name: Package SDK
-        run: ./scripts/package-windows.sh
+        run: ./scripts/run-logged.sh "${BUILD_LOG_DIR}/05-package.log" ./scripts/package-windows.sh
 
       - name: Validate package layout
-        run: ./scripts/validate-package.sh
+        run: ./scripts/run-logged.sh "${BUILD_LOG_DIR}/06-validate-package.log" ./scripts/validate-package.sh
 
       - name: Set artifact version
         id: meta
@@ -96,14 +100,27 @@ jobs:
           if-no-files-found: error
 
       - name: Save source cache
+        if: success()
         uses: actions/cache/save@v4
         with:
           path: .cache/sources
           key: sources-${{ hashFiles('configs/sources/*.json') }}
 
       - name: Cache LGPL ffmpeg prefix
-        if: matrix.license == 'lgpl'
+        if: success() && matrix.license == 'lgpl'
         uses: actions/cache/save@v4
         with:
           path: .cache/ffmpeg-lgpl-prefix
           key: ffmpeg-lgpl-${{ hashFiles('configs/sources/ffmpeg.json', 'configs/profiles/lgpl.json') }}
+
+      - name: Collect diagnostic logs
+        if: failure()
+        run: ./scripts/run-logged.sh "${BUILD_LOG_DIR}/99-collect-diagnostics.log" ./scripts/collect-ci-logs.sh
+
+      - name: Upload build logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-windows-x86_64-${{ matrix.license }}-${{ github.run_id }}
+          path: .cache/logs/
+          if-no-files-found: warn

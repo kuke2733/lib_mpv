@@ -5,6 +5,18 @@ set -euo pipefail
 source "$(dirname "$0")/common.sh"
 load_config
 
+ensure_pacboy() {
+    if command -v pacboy >/dev/null 2>&1; then
+        return 0
+    fi
+    echo "pacboy not found; installing pactoys ..."
+    pacman -S --needed --noconfirm pactoys
+    if ! command -v pacboy >/dev/null 2>&1; then
+        echo "ERROR: pacboy still unavailable after installing pactoys" >&2
+        exit 1
+    fi
+}
+
 COMMON_PKGS=(
     cc
     meson
@@ -37,6 +49,7 @@ install_pacboy() {
     done
 }
 
+ensure_pacboy
 install_pacboy "${COMMON_PKGS[@]}"
 
 mapfile -t EXTRA < <(jq -r '.pacboy_extra[]' "$CONFIG")

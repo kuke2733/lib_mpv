@@ -58,7 +58,14 @@ After a local or CI build:
 PROFILE=gpl bash scripts/validate-package.sh
 ```
 
-## License notice
+## CI 失败时
+
+GitHub Actions 失败后会自动上传 **build-logs-windows-x86_64-&lt;profile&gt;-&lt;run_id&gt;** artifact，包含：
+
+- 各步骤 `01-*.log` … `06-*.log`
+- `diagnostics/`（meson-log、ffmpeg config、环境信息等）
+
+下载该 zip 即可用于排查问题。
 
 This repository provides build scripts only. **mpv**, **ffmpeg**, and bundled libraries retain their original licenses. Choose the **gpl** or **lgpl** artifact according to your project's licensing requirements. This is not legal advice.
 
