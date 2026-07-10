@@ -25,7 +25,7 @@
     "spirv-cross": "enabled",
     "uchardet": "enabled",
     "vapoursynth": "enabled",
-    "win32-smtc": "enabled"
+    "win32-smtc": "disabled"
   },
   "pacboy_extra": [
     "ffmpeg",

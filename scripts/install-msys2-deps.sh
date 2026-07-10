@@ -56,7 +56,7 @@ COMMON_PKGS=(
 )
 
 install_msys_tools() {
-    pacman -S --needed --noconfirm zip p7zip
+    pacman -S --needed --noconfirm zip p7zip make diffutils
 }
 
 install_one_pkg() {
