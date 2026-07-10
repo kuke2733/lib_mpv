@@ -61,6 +61,7 @@ install_msys_tools() {
 
 install_one_pkg() {
     local pkg="$1"
+    pkg="$(strip_cr "$pkg")"
     local mingw_prefix full_name
     mingw_prefix="$(mingw_pkg_prefix)"
     full_name="${mingw_prefix}-${pkg}"
@@ -100,6 +101,9 @@ install_msys_tools
 install_pacboy "${COMMON_PKGS[@]}"
 
 mapfile -t EXTRA < <(jq -r '.pacboy_extra[]' "$CONFIG")
+for i in "${!EXTRA[@]}"; do
+    EXTRA[$i]="$(strip_cr "${EXTRA[$i]}")"
+done
 sync_pacman
 install_pacboy "${EXTRA[@]}"
 

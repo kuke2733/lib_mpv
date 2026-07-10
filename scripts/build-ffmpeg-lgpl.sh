@@ -21,11 +21,13 @@ mkdir -p "$FFMPEG_LGPL_PREFIX"
 
 CONFIGURE_FLAGS=()
 while IFS= read -r flag; do
+    flag="$(strip_cr "$flag")"
     [[ -z "$flag" ]] && continue
     CONFIGURE_FLAGS+=("$flag")
 done < <(jq -r '.ffmpeg.configure_flags[]' "$CONFIG")
 
 while IFS= read -r lib; do
+    lib="$(strip_cr "$lib")"
     [[ -z "$lib" ]] && continue
     CONFIGURE_FLAGS+=("--disable-${lib}")
 done < <(jq -r '.ffmpeg.disable_libs[]' "$CONFIG")

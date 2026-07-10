@@ -29,6 +29,12 @@ load_config() {
     export CONFIG VERSIONS
 }
 
+strip_cr() {
+    local value="$1"
+    value="${value//$'\r'/}"
+    printf '%s' "$value"
+}
+
 json_get() {
     local file="$1"
     local query="$2"
@@ -102,6 +108,7 @@ meson_feature_args() {
     local keys
     keys="$(jq -r '.features | keys[]' "$config")"
     while IFS= read -r key; do
+        key="$(strip_cr "$key")"
         [[ -z "$key" ]] && continue
         local value
         value="$(jq -r --arg k "$key" '.features[$k]' "$config")"
@@ -116,6 +123,7 @@ meson_bool_args() {
     local keys
     keys="$(jq -r '.meson | keys[]' "$config")"
     while IFS= read -r key; do
+        key="$(strip_cr "$key")"
         [[ -z "$key" ]] && continue
         local value
         value="$(jq -r --arg k "$key" '.meson[$k]' "$config")"
